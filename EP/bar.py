@@ -22,7 +22,7 @@ class DayBar:
 
 	def parse(self, record):
 		try:
-			dt, op, hi, lo, cl, vol = record
+			dt, op, cl, hi, lo, vol = record
 			self.init(dt, float(op), float(hi), float(lo),
 						float(cl), float(vol))
 			return True

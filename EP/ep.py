@@ -5,7 +5,8 @@
 import csv
 import matplotlib.pyplot as plt
 from bar import DayBar 
-
+import json
+from pprint import pprint
 
 class EP:
 
@@ -15,6 +16,7 @@ class EP:
 		self.ops = []
 		self.smas = []
 		self.emas = []
+		self.json = []
 
 	def loadDayBar(self, filepath):
 		''' Load day bars from a file
@@ -28,14 +30,45 @@ class EP:
 					self.cls.append(bar.cl)
 					self.ops.append(bar.op)
 
+	def loadJson(self, filepath):
+		try:
+			with open(filepath) as f:
+				data = json.load(f)
+			self.json = data
+			
+		except Exception as inst:
+			print "Load Json failed"
+			print inst
+	
+	def getMinval(self):
+		minVal  = self.json[0].val
+		print minVal
+
+	def getValSurface(self):
+		pass
+
 
 	def displayData(self):
 		plt.plot(self.cls)
-		plt.plot(self.smas, "r--")
-		plt.plot(self.emas, "g.")
+		plt.plot(self.ops, "g-")
+		#plt.plot(self.smas, "r--")
+		#plt.plot(self.emas, "g.")
 		plt.xlabel("days")
 		plt.ylabel("Price")
 		plt.show()
+
+	def displayScatter(self):
+		coratio = []
+		ocratio = []
+		for c in range(0, len(self.cls)-1):
+			coratio.append(float(self.ops[c+1] - self.cls[c])/self.cls[c]*100)
+			ocratio.append(float(self.cls[c+1] - self.ops[c+1])/self.ops[c+1]*100)
+
+		plt.scatter(coratio, ocratio)
+		plt.xlabel("Gap Percent")
+		plt.ylabel("Daily Change Percent")
+		plt.grid()
+		plt.show()	
 
 	def EPFormula(self, SMAPeriod, EMAPeriod, SDPeriod):
 		start = max([SMAPeriod, EMAPeriod, SDPeriod])
