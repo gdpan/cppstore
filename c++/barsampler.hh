@@ -16,11 +16,14 @@ namespace Xedge {
 class barSampler
 {
 public:
+	enum FileType { Min1BarCSV };	
+
+public:
 	barSampler() {}
 
 	~barSampler() {}
 	
-	barSampler(std::string filepath);
+	barSampler(std::string filepath, FileType ft);
 
 	bar sample(const datetime &from, const datetime &to) const;
 
