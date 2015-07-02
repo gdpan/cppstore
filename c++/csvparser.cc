@@ -5,6 +5,9 @@
 #include <fstream>
 #include <iostream>
 #include <algorithm>
+#include <iterator>
+#include <cstring>
+#include <exception>
 
 using namespace std;
 using namespace Xedge;
@@ -13,40 +16,55 @@ csvParser::csvParser(const string filename) {
 	fp = filename;	
 }
 
-csvParser::numberOfLines() {
-	ifstream f(fp);
-	f.unsetf(ios_base::skipws);
-	return count(
-		istream_iterator<char>(f), istream_iterator<char>(), '\n');
+size_t csvParser::numberOfLines() {
+	try {
+		ifstream f(fp);
+
+		if (f.good()) {
+			f.unsetf(ios_base::skipws);
+			return  count(
+			istream_iterator<char>(f), istream_iterator<char>(), '\n');
+		} else
+			return 0;
+
+	} catch (std::exception e) {
+		cout << "Exception " << e.what() ;
+		throw e;
+	}
 }
 
-csvParser::parse(vector<string> &fs, vector<vector<string>> &cls) {
-	try {
+bool csvParser::parse() {
+	try{
+		size_t  ln = numberOfLines();
+
+		if (!ln) {
+			cout << fp << " cannot be opened or has no content." << endl;
+			return false;
+		}
+			
 		string  buf;
 		vector<string> tokens;
 		size_t  lineId = 0;
+		size_t  fn = 0;
 		fs.clear();
 		cls.clear();
-
-		size_t  fn = 0;
-		size_t  ln = numberOfLines();
 		cls.resize(ln);
-
+		
 		char* pch;
 		fstream ifs(fp, fstream::in);
 		while (!ifs.eof()) {
 			getline(ifs, buf);
 			if (lineId == 0) {
-				pch = strtok(buf.c_str(), ",");
+				pch = strtok((char*)buf.c_str(), ",");
 				while (pch != NULL) {
 					fn++;
-					fs.push(pch);
+					fs.push_back(pch);
 					pch = strtok(NULL, ",");
 				}
 				tokens.resize(fn);
 			} else {
 				fn = 0;
-				pch = strtok(buf.c_str(),",");
+				pch = strtok((char*)buf.c_str(),",");
 				while (pch != NULL) {
 					tokens[fn++] = pch;
 					pch = strtok(NULL, ",");
@@ -54,17 +72,23 @@ csvParser::parse(vector<string> &fs, vector<vector<string>> &cls) {
 				cls[lineId-1] = tokens;
 			}
 			lineId ++;
-			
-		}	
+		}
+
 		ifs.close();
-		fields = fs;
-		cols = cls;
-	} catch (ifstream::failure e) {
-		cerr << "Exception happen when opening, reading or closing file." << endl;
-	}	
+		return true;
+	} catch (std::exception e) {
+		std::cout << "Exception " << e.what();
+		return false;
+	}
 }
 
-csvParser::displayFile() {
+void csvParser::displayStringVec(vector<string> &v) {
+	for_each(v.begin(), v.end(), [](string &s){ cout << s << " "; });
+	cout << endl;
+}
+
+void csvParser::displayFile() {
 	cout << "Fields of this file are " << endl;
-	for_each(fs.begin(), fs.end(), [](string s){ cout << s; });	
+	displayStringVec(fs);
+	for_each(cls.begin(), cls.end(), [&](vector<string> &v){ displayStringVec(v);});
 }

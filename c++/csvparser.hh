@@ -20,18 +20,23 @@ class csvParser
 	
 		csvParser(const string filename);
 		
-		bool parse(vector<string> &fields, vector<vector<string>> &cols);
+		bool parse();
 
 		size_t numberOfLines();
+
+		void displayFile();
+
+		const vector<string> & getFields() { return fs; }
+		const vector<vector<string>> & getColumn() { return cls; };
 
 	protected:
 		string fp;
 
-		vector<string> fields;
+		vector<string> fs;
 
-		vector<vector<string>> cols;
+		vector<vector<string>> cls;
 		
-		displayFile();
+		void displayStringVec(vector<string> &v);		
 };
 
 };
