@@ -13,7 +13,8 @@ using namespace std;
 using namespace Xedge;
 
 csvParser::csvParser(const string filename) {
-	fp = filename;	
+	fp = filename;
+	load();	
 }
 
 size_t csvParser::numberOfLines() {
@@ -33,52 +34,74 @@ size_t csvParser::numberOfLines() {
 	}
 }
 
-bool csvParser::parse() {
+bool csvParser::load() {
 	try{
 		size_t  ln = numberOfLines();
-
 		if (!ln) {
 			cout << fp << " cannot be opened or has no content." << endl;
 			return false;
 		}
-			
-		string  buf;
-		vector<string> tokens;
-		size_t  lineId = 0;
-		size_t  fn = 0;
-		fs.clear();
-		cls.clear();
-		cls.resize(ln);
-		
-		char* pch;
+		content.clear();
+		content.resize(ln);
 		fstream ifs(fp, fstream::in);
-		while (!ifs.eof()) {
-			getline(ifs, buf);
-			if (lineId == 0) {
-				pch = strtok((char*)buf.c_str(), ",");
-				while (pch != NULL) {
-					fn++;
-					fs.push_back(pch);
-					pch = strtok(NULL, ",");
-				}
-				tokens.resize(fn);
-			} else {
-				fn = 0;
-				pch = strtok((char*)buf.c_str(),",");
-				while (pch != NULL) {
-					tokens[fn++] = pch;
-					pch = strtok(NULL, ",");
-				}
-				cls[lineId-1] = tokens;
-			}
-			lineId ++;
-		}
-
+		size_t lineId = 0;
+		while (lineId < ln) 
+			getline(ifs, content[lineId++]);
 		ifs.close();
 		return true;
 	} catch (std::exception e) {
 		std::cout << "Exception " << e.what();
 		return false;
+	}
+}
+
+size_t csvParser::numberOfColumn() {
+	try {
+		ifstream f(fp);
+		if (f.good()) {
+			char buf[MaxColumn];
+			getline(f, )
+		} else 
+			return 0;
+	}
+	if (content.size() == 0) 
+		load();
+ 	string s = content[0];	
+}
+
+vector<string> & csvParser::parseLine(string &s) {
+
+}
+
+bool csvParser::parse() {
+	string  buf;
+	vector<string> tokens;
+	size_t  lineId = 0;
+	size_t  fn = 0;
+	fs.clear();
+	cls.clear();
+	
+	char* pch;
+	while (!ifs.eof()) {
+		getline(ifs, buf);
+		if (lineId == 0) {
+			pch = strtok((char*)buf.c_str(), ",");
+			while (pch != NULL) {
+				fn++;
+				fs.push_back(pch);
+				pch = strtok(NULL, ",");
+			}
+			tokens.resize(fn);
+		} else {
+			fn = 0;
+			pch = strtok((char*)buf.c_str(),",");
+			while (pch != NULL) {
+				tokens[fn++] = pch;
+				pch = strtok(NULL, ",");
+			}
+			cls[lineId-1] = tokens;
+		}
+		lineId ++;
 	}
 }
 
@@ -88,7 +111,10 @@ void csvParser::displayStringVec(vector<string> &v) {
 }
 
 void csvParser::displayFile() {
+/*
 	cout << "Fields of this file are " << endl;
 	displayStringVec(fs);
+	
 	for_each(cls.begin(), cls.end(), [&](vector<string> &v){ displayStringVec(v);});
+*/
 }
